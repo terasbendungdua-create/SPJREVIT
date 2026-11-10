@@ -46,8 +46,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const cats: Record<string, { label: string; pagu: number; realisasi: number }> = {
       MATERIAL: { label: 'Bahan Material Konstruksi', pagu: 0, realisasi: 0 },
       UPAH_TUKANG: { label: 'Upah Tukang & Pekerja', pagu: 0, realisasi: 0 },
-      ALAT_SEWA: { label: 'Sewa Alat & Perancah', pagu: 0, realisasi: 0 },
-      KONSUMSI: { label: 'Konsumsi Tim & Pekerja', pagu: 0, realisasi: 0 },
+      HONORARIUM: { label: 'Honorarium Tim Pelaksana', pagu: 0, realisasi: 0 },
       ADMINISTRASI: { label: 'Administrasi & SPJ', pagu: 0, realisasi: 0 },
     };
 

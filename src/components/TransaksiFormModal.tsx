@@ -57,7 +57,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
 
   // Kategori Belanja acuan dari Kertas Kerja
   const [kategoriBelanja, setKategoriBelanja] = useState<
-    'MATERIAL' | 'UPAH_TUKANG' | 'ALAT_SEWA' | 'KONSUMSI' | 'ADMINISTRASI'
+    'MATERIAL' | 'UPAH_TUKANG' | 'HONORARIUM' | 'ADMINISTRASI'
   >('MATERIAL');
 
   // Daftar baris barang / belanja sejajar
@@ -166,15 +166,14 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
 
   // Auto-switch tax category when Kategori Belanja changes
   const handleKategoriBelanjaChange = (
-    cat: 'MATERIAL' | 'UPAH_TUKANG' | 'ALAT_SEWA' | 'KONSUMSI' | 'ADMINISTRASI'
+    cat: 'MATERIAL' | 'UPAH_TUKANG' | 'HONORARIUM' | 'ADMINISTRASI'
   ) => {
     setKategoriBelanja(cat);
     setFormError(null);
 
     let taxPresetKey: TaxCategory = 'MATERIAL_BARANG';
     if (cat === 'UPAH_TUKANG') taxPresetKey = 'JASA_KONSTRUKSI_TUKANG';
-    else if (cat === 'ALAT_SEWA') taxPresetKey = 'SEWA_PERALATAN';
-    else if (cat === 'KONSUMSI') taxPresetKey = 'MAKAN_MINUM';
+    else if (cat === 'HONORARIUM') taxPresetKey = 'HONORARIUM';
     else taxPresetKey = 'MATERIAL_BARANG';
 
     setKategoriPajak(taxPresetKey);
@@ -397,7 +396,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
       setUraianNonBelanja('');
 
       // Cek default Kertas Kerja
-      let initialCat: 'MATERIAL' | 'UPAH_TUKANG' | 'ALAT_SEWA' | 'KONSUMSI' | 'ADMINISTRASI' =
+      let initialCat: 'MATERIAL' | 'UPAH_TUKANG' | 'HONORARIUM' | 'ADMINISTRASI' =
         'MATERIAL';
       let targetKK: KertasKerjaItem | undefined;
 
@@ -682,8 +681,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
                     e.target.value as
                       | 'MATERIAL'
                       | 'UPAH_TUKANG'
-                      | 'ALAT_SEWA'
-                      | 'KONSUMSI'
+                      | 'HONORARIUM'
                       | 'ADMINISTRASI'
                   )
                 }
@@ -691,8 +689,7 @@ export const TransaksiFormModal: React.FC<TransaksiFormModalProps> = ({
               >
                 <option value="MATERIAL">Bahan Material Konstruksi</option>
                 <option value="UPAH_TUKANG">Upah Tukang & Tenaga Kerja Lapangan</option>
-                <option value="ALAT_SEWA">Sewa Alat & Perancah Konstruksi</option>
-                <option value="KONSUMSI">Konsumsi Kegiatan & Rapat Tim</option>
+                <option value="HONORARIUM">Honorarium Tim Pelaksana & Pengelola</option>
                 <option value="ADMINISTRASI">Administrasi SPJ, Dokumentasi & ATK</option>
               </select>
             </div>

@@ -35,6 +35,7 @@ import { TransaksiFormModal } from './components/TransaksiFormModal';
 import { PrintReportModal } from './components/PrintReportModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ConfirmDeleteModal } from './components/ConfirmDeleteModal';
+import { BackupRestoreModal } from './components/BackupRestoreModal';
 import { CheckCircle2 } from 'lucide-react';
 
 export default function App() {
@@ -71,9 +72,25 @@ export default function App() {
   const [printTrx, setPrintTrx] = useState<TransaksiSPJ | null>(null);
   const [printMonth, setPrintMonth] = useState<string>('ALL');
 
+  const [isBackupRestoreOpen, setIsBackupRestoreOpen] = useState(false);
+
   // Sync state changes with persistence
   const refreshLogs = () => {
     setLogs(loadLogs());
+  };
+
+  const handleDataRestored = (
+    newProfile: SchoolProfile,
+    newKK: KertasKerjaItem[],
+    newTrx: TransaksiSPJ[],
+    newLogs: ActivityLog[],
+    message: string
+  ) => {
+    setProfile(newProfile);
+    setKertasKerja(newKK);
+    setTransaksi(newTrx);
+    setLogs(newLogs);
+    showToast(message);
   };
 
   const handleUpdateProfile = (newProfile: SchoolProfile) => {
@@ -398,6 +415,7 @@ export default function App() {
           setIsAddTrxModalOpen(true);
         }}
         onOpenPrint={() => handleOpenPrintModal('BKU')}
+        onOpenBackupRestore={() => setIsBackupRestoreOpen(true)}
         onResetData={() => setIsResetModalOpen(true)}
       />
 
@@ -552,6 +570,16 @@ export default function App() {
         confirmText="Reset ke Sampel Awal"
         onConfirm={executeResetData}
         onCancel={() => setIsResetModalOpen(false)}
+      />
+
+      <BackupRestoreModal
+        isOpen={isBackupRestoreOpen}
+        onClose={() => setIsBackupRestoreOpen(false)}
+        profile={profile}
+        kertasKerja={kertasKerja}
+        transaksi={transaksi}
+        logs={logs}
+        onDataRestored={handleDataRestored}
       />
     </div>
   );

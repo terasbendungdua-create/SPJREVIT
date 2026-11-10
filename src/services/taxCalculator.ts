@@ -10,10 +10,17 @@ export const TAX_PRESETS: Record<TaxCategory, TaxConfiguration> = {
   },
   JASA_KONSTRUKSI_TUKANG: {
     category: 'JASA_KONSTRUKSI_TUKANG',
-    categoryLabel: 'Upah Tukang & Jasa Konstruksi Lapangan',
+    categoryLabel: 'Upah Tukang & Tenaga Kerja Lapangan',
     defaultPpnRate: 0,
     defaultPphRate: 2.5,
     pphType: 'PPh 21 (Upah Tukang/Tenaga Kerja)',
+  },
+  HONORARIUM: {
+    category: 'HONORARIUM',
+    categoryLabel: 'Honorarium Tim Pelaksana / Panitia / Narasumber',
+    defaultPpnRate: 0,
+    defaultPphRate: 5.0,
+    pphType: 'PPh 21 (Honorarium)',
   },
   JASA_KONSULTAN: {
     category: 'JASA_KONSULTAN',

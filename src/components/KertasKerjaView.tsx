@@ -394,8 +394,7 @@ export const KertasKerjaView: React.FC<KertasKerjaViewProps> = ({
               <option value="ALL">Semua Kategori</option>
               <option value="MATERIAL">Bahan Material</option>
               <option value="UPAH_TUKANG">Upah Tukang & Pekerja</option>
-              <option value="ALAT_SEWA">Sewa Alat</option>
-              <option value="KONSUMSI">Konsumsi</option>
+              <option value="HONORARIUM">Honorarium Tim Pelaksana</option>
               <option value="ADMINISTRASI">Administrasi & SPJ</option>
             </select>
           </div>
@@ -685,8 +684,7 @@ export const KertasKerjaView: React.FC<KertasKerjaViewProps> = ({
                   >
                     <option value="MATERIAL">Bahan Material Konstruksi</option>
                     <option value="UPAH_TUKANG">Upah Tukang & Tenaga Kerja</option>
-                    <option value="ALAT_SEWA">Sewa Alat & Perancah</option>
-                    <option value="KONSUMSI">Konsumsi Kegiatan</option>
+                    <option value="HONORARIUM">Honorarium Tim Pelaksana & Pengelola</option>
                     <option value="ADMINISTRASI">Administrasi SPJ & ATK</option>
                   </select>
                 </div>

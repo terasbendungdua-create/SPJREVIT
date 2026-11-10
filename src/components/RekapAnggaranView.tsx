@@ -56,20 +56,14 @@ export const RekapAnggaranView: React.FC<RekapAnggaranViewProps> = ({
         subtotalPagu: 0,
         subtotalRealisasi: 0,
       },
-      ALAT_SEWA: {
-        label: 'C. Belanja Sewa Peralatan Konstruksi',
-        items: [],
-        subtotalPagu: 0,
-        subtotalRealisasi: 0,
-      },
-      KONSUMSI: {
-        label: 'D. Belanja Konsumsi Kegiatan Lapangan',
+      HONORARIUM: {
+        label: 'C. Belanja Honorarium Tim Pelaksana & Pengelola',
         items: [],
         subtotalPagu: 0,
         subtotalRealisasi: 0,
       },
       ADMINISTRASI: {
-        label: 'E. Belanja Administrasi, ATK & Dokumentasi SPJ',
+        label: 'D. Belanja Administrasi, ATK & Dokumentasi SPJ',
         items: [],
         subtotalPagu: 0,
         subtotalRealisasi: 0,

@@ -144,25 +144,25 @@ export const INITIAL_KERTAS_KERJA: KertasKerjaItem[] = [
   {
     id: 'KK-010',
     kodeAkun: '5.2.04.01.010',
-    uraian: 'Sewa Mesin Molen Pengaduk Semen & Scaffolding Steger',
-    kategori: 'ALAT_SEWA',
-    satuan: 'Hari',
-    volumeTarget: 25,
-    hargaSatuan: 220000,
-    totalAnggaran: 5500000,
-    keterangan: 'Dukungan percepatan pengecoran dan perancah atap',
+    uraian: 'Honorarium Tim Pelaksana / Penanggung Jawab Revitalisasi Sekolah',
+    kategori: 'HONORARIUM',
+    satuan: 'OB',
+    volumeTarget: 3,
+    hargaSatuan: 1500000,
+    totalAnggaran: 4500000,
+    keterangan: 'Honorarium penanggung jawab kegiatan revitalisasi (3 bulan)',
     createdAt: '2026-03-01T09:30:00Z',
   },
   {
     id: 'KK-011',
     kodeAkun: '5.2.05.01.011',
-    uraian: 'Konsumsi Harian Pekerja & Rapat Koordinasi Komite Sekolah',
-    kategori: 'KONSUMSI',
-    satuan: 'Paket',
-    volumeTarget: 40,
-    hargaSatuan: 125000,
-    totalAnggaran: 5000000,
-    keterangan: 'Snack, makan siang rapat mingguan tim revitalisasi',
+    uraian: 'Honorarium Sekretaris & Bendahara Tim Revitalisasi Sekolah',
+    kategori: 'HONORARIUM',
+    satuan: 'OB',
+    volumeTarget: 6,
+    hargaSatuan: 1000000,
+    totalAnggaran: 6000000,
+    keterangan: 'Honorarium pembukuan SPJ dan administrasi kegiatan (2 orang x 3 bulan)',
     createdAt: '2026-03-01T09:40:00Z',
   },
   {
@@ -393,7 +393,21 @@ export function saveProfile(profile: SchoolProfile): void {
 export function loadKertasKerja(): KertasKerjaItem[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.KERTAS_KERJA);
-    return data ? JSON.parse(data) : INITIAL_KERTAS_KERJA;
+    const items: KertasKerjaItem[] = data ? JSON.parse(data) : INITIAL_KERTAS_KERJA;
+    // Otomatis migrasikan kategori lama ALAT_SEWA / KONSUMSI ke HONORARIUM
+    let hasChanged = false;
+    const migrated = items.map((item) => {
+      const rawCat = (item as unknown as { kategori: string }).kategori;
+      if (rawCat === 'ALAT_SEWA' || rawCat === 'KONSUMSI') {
+        hasChanged = true;
+        return { ...item, kategori: 'HONORARIUM' as const };
+      }
+      return item;
+    });
+    if (hasChanged) {
+      localStorage.setItem(STORAGE_KEYS.KERTAS_KERJA, JSON.stringify(migrated));
+    }
+    return migrated;
   } catch {
     return INITIAL_KERTAS_KERJA;
   }
@@ -406,7 +420,20 @@ export function saveKertasKerja(items: KertasKerjaItem[]): void {
 export function loadTransaksi(): TransaksiSPJ[] {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.TRANSAKSI);
-    return data ? JSON.parse(data) : INITIAL_TRANSAKSI;
+    const items: TransaksiSPJ[] = data ? JSON.parse(data) : INITIAL_TRANSAKSI;
+    let hasChanged = false;
+    const migrated = items.map((t) => {
+      const rawCat = (t as unknown as { kategoriBelanja?: string }).kategoriBelanja;
+      if (rawCat === 'ALAT_SEWA' || rawCat === 'KONSUMSI') {
+        hasChanged = true;
+        return { ...t, kategoriBelanja: 'HONORARIUM' as const };
+      }
+      return t;
+    });
+    if (hasChanged) {
+      localStorage.setItem(STORAGE_KEYS.TRANSAKSI, JSON.stringify(migrated));
+    }
+    return migrated;
   } catch {
     return INITIAL_TRANSAKSI;
   }
@@ -447,6 +474,192 @@ export function resetAllDataToDefault(): void {
     modul: 'PENGATURAN',
     deskripsi: 'Reset seluruh data aplikasi ke sampel awal Revitalisasi Sekolah',
   });
+}
+
+// ==================== FITUR BACKUP & RESTORE ====================
+export interface AppBackupData {
+  version: string;
+  appName: string;
+  exportedAt: string;
+  profile: SchoolProfile;
+  kertasKerja: KertasKerjaItem[];
+  transaksi: TransaksiSPJ[];
+  logs: ActivityLog[];
+  summary: {
+    totalKertasKerja: number;
+    totalTransaksi: number;
+    totalPagu: number;
+    totalKas: number;
+    namaSekolah: string;
+    tahunAnggaran: number;
+  };
+}
+
+export function createBackupData(
+  profile: SchoolProfile,
+  kertasKerja: KertasKerjaItem[],
+  transaksi: TransaksiSPJ[],
+  logs: ActivityLog[]
+): AppBackupData {
+  const totalPagu = kertasKerja.reduce((acc, k) => acc + (k.totalAnggaran || 0), 0);
+  const totalKas = transaksi.reduce((acc, t) => {
+    if (t.jenisTransaksi === 'PENERIMAAN') return acc + t.nilaiBruto;
+    if (t.jenisTransaksi === 'PENGELUARAN') return acc - t.nilaiBruto;
+    return acc;
+  }, 0);
+
+  return {
+    version: '1.2.0',
+    appName: 'SI-SPJ Revitalisasi Sekolah',
+    exportedAt: new Date().toISOString(),
+    profile,
+    kertasKerja,
+    transaksi,
+    logs,
+    summary: {
+      totalKertasKerja: kertasKerja.length,
+      totalTransaksi: transaksi.length,
+      totalPagu,
+      totalKas,
+      namaSekolah: profile.namaSekolah,
+      tahunAnggaran: profile.tahunAnggaran,
+    },
+  };
+}
+
+export function downloadBackupFile(backup: AppBackupData): void {
+  const jsonStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const safeName = (backup.profile.namaSekolah || 'REVITALISASI').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const dateStr = new Date().toISOString().split('T')[0];
+  link.href = url;
+  link.download = `BACKUP_SPJ_${safeName}_${dateStr}.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export function restoreBackupData(
+  backup: AppBackupData,
+  mode: 'REPLACE' | 'MERGE',
+  currentProfile: SchoolProfile,
+  currentKK: KertasKerjaItem[],
+  currentTrx: TransaksiSPJ[],
+  currentLogs: ActivityLog[]
+): {
+  success: boolean;
+  message: string;
+  profile: SchoolProfile;
+  kertasKerja: KertasKerjaItem[];
+  transaksi: TransaksiSPJ[];
+  logs: ActivityLog[];
+} {
+  try {
+    if (!backup.kertasKerja || !Array.isArray(backup.kertasKerja)) {
+      return {
+        success: false,
+        message: 'Format berkas tidak valid: Data Kertas Kerja tidak ditemukan di file backup.',
+        profile: currentProfile,
+        kertasKerja: currentKK,
+        transaksi: currentTrx,
+        logs: currentLogs,
+      };
+    }
+    if (!backup.transaksi || !Array.isArray(backup.transaksi)) {
+      return {
+        success: false,
+        message: 'Format berkas tidak valid: Data Transaksi SPJ tidak ditemukan di file backup.',
+        profile: currentProfile,
+        kertasKerja: currentKK,
+        transaksi: currentTrx,
+        logs: currentLogs,
+      };
+    }
+
+    // Pastikan migrasi kategori berjalan pada data yang dipulihkan
+    const sanitizedKK: KertasKerjaItem[] = backup.kertasKerja.map((k) => {
+      const rawCat = (k as unknown as { kategori: string }).kategori;
+      if (rawCat === 'ALAT_SEWA' || rawCat === 'KONSUMSI') {
+        return { ...k, kategori: 'HONORARIUM' as const };
+      }
+      return k;
+    });
+
+    const sanitizedTrx: TransaksiSPJ[] = backup.transaksi.map((t) => {
+      const rawCat = (t as unknown as { kategoriBelanja?: string }).kategoriBelanja;
+      if (rawCat === 'ALAT_SEWA' || rawCat === 'KONSUMSI') {
+        return { ...t, kategoriBelanja: 'HONORARIUM' as const };
+      }
+      return t;
+    });
+
+    let newProfile = backup.profile || currentProfile;
+    let newKK: KertasKerjaItem[];
+    let newTrx: TransaksiSPJ[];
+    let newLogs: ActivityLog[];
+
+    if (mode === 'REPLACE') {
+      newKK = sanitizedKK;
+      newTrx = sanitizedTrx;
+      const restoreLog: ActivityLog = {
+        id: `LOG-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        operator: newProfile.namaBendahara || 'Bendahara',
+        action: 'RESET',
+        modul: 'PENGATURAN',
+        deskripsi: `Pemulihan cadangan (Restore Timpa Total): ${sanitizedKK.length} item RAB & ${sanitizedTrx.length} transaksi SPJ`,
+      };
+      newLogs = [restoreLog, ...(backup.logs || [])].slice(0, 500);
+    } else {
+      // MERGE mode: merge by id
+      const existingKKIds = new Set(currentKK.map((k) => k.id));
+      const addedKK = sanitizedKK.filter((k) => !existingKKIds.has(k.id));
+      newKK = [...currentKK, ...addedKK];
+
+      const existingTrxIds = new Set(currentTrx.map((t) => t.id));
+      const addedTrx = sanitizedTrx.filter((t) => !existingTrxIds.has(t.id));
+      newTrx = [...currentTrx, ...addedTrx];
+
+      const restoreLog: ActivityLog = {
+        id: `LOG-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        operator: currentProfile.namaBendahara || 'Bendahara',
+        action: 'TAMBAH',
+        modul: 'PENGATURAN',
+        deskripsi: `Pemulihan cadangan (Restore Gabung): Menambahkan ${addedKK.length} item RAB & ${addedTrx.length} transaksi baru`,
+      };
+      newLogs = [restoreLog, ...currentLogs].slice(0, 500);
+      newProfile = currentProfile;
+    }
+
+    // Simpan ke localStorage
+    localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(newProfile));
+    localStorage.setItem(STORAGE_KEYS.KERTAS_KERJA, JSON.stringify(newKK));
+    localStorage.setItem(STORAGE_KEYS.TRANSAKSI, JSON.stringify(newTrx));
+    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(newLogs));
+
+    return {
+      success: true,
+      message: `Pemulihan data berhasil! ${newKK.length} item Kertas Kerja dan ${newTrx.length} transaksi SPJ siap digunakan.`,
+      profile: newProfile,
+      kertasKerja: newKK,
+      transaksi: newTrx,
+      logs: newLogs,
+    };
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : 'Terjadi kesalahan saat memproses berkas backup';
+    return {
+      success: false,
+      message: `Gagal memulihkan cadangan: ${errMsg}`,
+      profile: currentProfile,
+      kertasKerja: currentKK,
+      transaksi: currentTrx,
+      logs: currentLogs,
+    };
+  }
 }
 
 // Format Currency IDR

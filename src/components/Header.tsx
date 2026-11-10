@@ -10,7 +10,8 @@ import {
   FileSpreadsheet,
   Coins,
   CreditCard,
-  Wallet
+  Wallet,
+  Database
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -21,6 +22,7 @@ interface HeaderProps {
   onOpenSettings: () => void;
   onOpenAddTrx: () => void;
   onOpenPrint: () => void;
+  onOpenBackupRestore: () => void;
   onResetData: () => void;
 }
 
@@ -32,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   onOpenAddTrx,
   onOpenPrint,
+  onOpenBackupRestore,
   onResetData,
 }) => {
   const navTabs = [
@@ -130,6 +133,15 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Printer className="w-3.5 h-3.5" />
               Cetak / PDF
+            </button>
+
+            <button
+              onClick={onOpenBackupRestore}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-semibold rounded-md transition-colors cursor-pointer border border-blue-200"
+              title="Cadangkan dan Pulihkan Data (Backup & Restore JSON)"
+            >
+              <Database className="w-3.5 h-3.5 text-blue-600" />
+              <span>Backup & Restore</span>
             </button>
 
             <button

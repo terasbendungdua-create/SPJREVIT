@@ -1,9 +1,19 @@
 export type PaymentMethod = 'TUNAI' | 'BANK';
 
+export type BudgetCategory = 
+  | 'MATERIAL' 
+  | 'UPAH_TUKANG' 
+  | 'HONORARIUM' 
+  | 'ADMINISTRASI'
+  // Legacy compatibility
+  | 'ALAT_SEWA'
+  | 'KONSUMSI';
+
 export type TaxCategory = 
   | 'MATERIAL_BARANG'      // PPN 11% / PPh 22 1.5%
-  | 'JASA_KONSTRUKSI_TUKANG' // PPh Final Jasa Konstruksi / PPh 21
-  | 'JASA_KONSULTAN'       // PPh 21 / PPh 23
+  | 'JASA_KONSTRUKSI_TUKANG' // PPh 21 Upah Tukang
+  | 'HONORARIUM'           // PPh 21 Honorarium Tim/Pengelola
+  | 'JASA_KONSULTAN'       // PPh 23
   | 'SEWA_PERALATAN'       // PPh 23 (2%)
   | 'MAKAN_MINUM'          // PB1 / PPh 23
   | 'BEBAS_PAJAK';         // Non-Pajak
@@ -20,8 +30,8 @@ export interface KertasKerjaItem {
   id: string;
   kodeAkun: string;          // contoh: 5.1.02.01.01.002
   uraian: string;            // contoh: Pengadaan Semen Portland 50kg untuk Plesteran Dinding
-  kategori: 'MATERIAL' | 'UPAH_TUKANG' | 'ALAT_SEWA' | 'KONSUMSI' | 'ADMINISTRASI';
-  satuan: string;            // Zak, m3, m2, OH (Orang Hari), Batang, Unit, Rim
+  kategori: 'MATERIAL' | 'UPAH_TUKANG' | 'HONORARIUM' | 'ADMINISTRASI';
+  satuan: string;            // Zak, m3, m2, OH (Orang Hari), OB (Orang Bulan), Batang, Unit, Rim
   volumeTarget: number;      // misal: 250
   hargaSatuan: number;       // misal: 72000
   totalAnggaran: number;     // volumeTarget * hargaSatuan
@@ -37,7 +47,7 @@ export interface TransaksiSPJ {
   jenisTransaksi: 'PENGELUARAN' | 'PENERIMAAN' | 'TARIK_TUNAI' | 'SETOR_BANK';
   kertasKerjaId?: string;    // ID kertas kerja yang terhubung (opsional jika penerimaan kas/tarik tunai)
   
-  kategoriBelanja?: 'MATERIAL' | 'UPAH_TUKANG' | 'ALAT_SEWA' | 'KONSUMSI' | 'ADMINISTRASI';
+  kategoriBelanja?: 'MATERIAL' | 'UPAH_TUKANG' | 'HONORARIUM' | 'ADMINISTRASI';
   
   // Rincian kuantitas & harga (khusus pengeluaran belanja)
   kuantitas: number;
