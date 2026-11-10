@@ -1,0 +1,7 @@
+{
+  "name": "SI-SPJ Revitalisasi Sekolah",
+  "description": "Sistem Informasi Pertanggungjawaban Keuangan (SPJ) Kegiatan Revitalisasi Sekolah lengkap dengan BKU, Buku Pembantu Bank, Buku Pembantu Kas Tunai, Kertas Kerja, Pajak Otomatis, dan Laporan Keuangan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
