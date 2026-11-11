@@ -24,6 +24,7 @@ import {
 } from './services/storage';
 
 import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { KertasKerjaView } from './components/KertasKerjaView';
 import { BKUView } from './components/BKUView';
@@ -46,6 +47,7 @@ export default function App() {
 
   // Active navigation tab
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Notification toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -393,22 +395,15 @@ export default function App() {
   }, [transaksi, kertasKerja]);
 
   return (
-    <div className="min-h-screen bg-slate-50/50 text-slate-800 flex flex-col font-sans">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2.5 text-xs animate-in slide-in-from-bottom-3 duration-200">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Top Header */}
-      <Header
-        profile={profile}
-        stats={stats}
+    <div className="min-h-screen bg-slate-50/50 text-slate-800 flex font-sans">
+      {/* Sidebar Navigation */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenSettings={() => setIsSettingsOpen(true)}
+        profile={profile}
+        stats={stats}
         onOpenAddTrx={() => {
           setEditingTrx(null);
           setSelectedKKIdForTrx(undefined);
@@ -416,8 +411,36 @@ export default function App() {
         }}
         onOpenPrint={() => handleOpenPrintModal('BKU')}
         onOpenBackupRestore={() => setIsBackupRestoreOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
         onResetData={() => setIsResetModalOpen(true)}
       />
+
+      {/* Main Content Column */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-72 transition-all">
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2.5 text-xs animate-in slide-in-from-bottom-3 duration-200">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
+        {/* Top Header */}
+        <Header
+          profile={profile}
+          stats={stats}
+          activeTab={activeTab}
+          onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenAddTrx={() => {
+            setEditingTrx(null);
+            setSelectedKKIdForTrx(undefined);
+            setIsAddTrxModalOpen(true);
+          }}
+          onOpenPrint={() => handleOpenPrintModal('BKU')}
+          onOpenBackupRestore={() => setIsBackupRestoreOpen(true)}
+          onResetData={() => setIsResetModalOpen(true)}
+        />
 
       {/* Main Content Body */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-6">
@@ -515,17 +538,18 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-3 px-4 text-xs text-slate-500 text-center">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>
-            SI-SPJ Revitalisasi Sekolah · {profile.namaSekolah} · Tahun Anggaran {profile.tahunAnggaran}
-          </span>
-          <span className="text-[11px] text-slate-400">
-            Sistem Pertanggungjawaban Keuangan & Pembukuan Kas Sesuai Standar BOSP / DAK Fisik
-          </span>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="border-t border-slate-200 bg-white py-3 px-4 text-xs text-slate-500 text-center">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>
+              SI-SPJ Revitalisasi Sekolah · {profile.namaSekolah} · Tahun Anggaran {profile.tahunAnggaran}
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Sistem Pertanggungjawaban Keuangan & Pembukuan Kas Sesuai Standar BOSP / DAK Fisik
+            </span>
+          </div>
+        </footer>
+      </div>
 
       {/* Modals */}
       <TransaksiFormModal
